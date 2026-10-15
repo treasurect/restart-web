@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter, useRoute, RouterView } from "vue-router";
 import { removeToken } from "@/api/request";
+import AppDownload from "@/components/AppDownload.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -35,6 +36,8 @@ function logout() {
         </RouterLink>
       </nav>
 
+      <AppDownload />
+      
       <button class="logout" @click="logout">
         退出登录
       </button>

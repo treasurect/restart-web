@@ -1,10 +1,12 @@
 <script setup>
-defineProps({
+import {BASE_URL} from '@/api/request';
+const props = defineProps({
   moment: {
     type:Object,
     required:true
   }
 });
+console.log("图片URL：", props.moment.images)
 </script>
 
 <template>
@@ -17,7 +19,7 @@ defineProps({
         <img
           v-for="(image,index) in moment.images"
           :key="index"
-          :src="image"
+          :src="BASE_URL + image"
           alt="朋友圈图片">
     </div>
     <p class="time">

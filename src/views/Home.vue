@@ -149,6 +149,8 @@ function highlightText(text) {
     match => `<mark class="search-highlight">${match}</mark>`,
   )
 }
+
+const openDetail = (item)=> alert(item.content)
 </script>
 
 <template>
@@ -187,7 +189,7 @@ function highlightText(text) {
           ‹
         </button>
 
-        <div :key="currentSlide" class="carousel-content">
+        <div :key="currentSlide" class="carousel-content" @click="openDetail(slides[currentSlide])">
           <span class="carousel-tag">PROMPT LIBRARY</span>
 
           <h2>{{ slides[currentSlide].title }}</h2>
@@ -255,6 +257,7 @@ function highlightText(text) {
             :key="item.title + index"
             :ref="el => (promptRefs[index] = el)"
             class="prompt-item"
+            @click="openDetail(item)"
           >
             <div class="prompt-info">
               <h3 v-html="highlightText(item.title)"></h3>

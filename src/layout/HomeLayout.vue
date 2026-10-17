@@ -8,8 +8,8 @@ const route = useRoute();
 
 const tabs = [
   { name: "首页", path: "/home" },
-  { name: "朋友圈", path: "/moments" },
-  { name: "图片", path: "/images" },
+  { name: "圈子", path: "/moments" },
+  { name: "册集", path: "/album" },
   { name: "我的", path: "/profile" }
 ];
 
@@ -37,7 +37,6 @@ function logout() {
       </nav>
 
       <AppDownload />
-      
       <button class="logout" @click="logout">
         退出登录
       </button>

@@ -1,7 +1,7 @@
 import request from "./request";
 
 export function loginPwd(username, password) {
-  return request.post("/api/user/loginPwd",{username,password});
+  return request.post("api/user/loginPwd",{username,password});
 }
 
 export function getUserInfo() {

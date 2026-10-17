@@ -4,7 +4,7 @@ import Login from "@/views/Login.vue";
 import HomeLayout from "@/layout/HomeLayout.vue";
 import Home from "@/views/Home.vue";
 import Moments from "@/views/Moments.vue";
-import Images from "@/views/Images.vue";
+import Album from "@/views/Album.vue";
 import Profile from "@/views/Profile.vue";
 
 import { isLogin } from "@/api/request";
@@ -23,19 +23,19 @@ const router = createRouter({
       redirect: "/home",
       children: [
         {
-          path: "home",
+          path: "/home",
           component: Home
         },
         {
-          path: "moments",
+          path: "/moments",
           component: Moments
         },
         {
-          path: "images",
-          component: Images
+          path: "/album",
+          component: Album
         },
         {
-          path: "profile",
+          path: "/profile",
           component: Profile
         }
       ]

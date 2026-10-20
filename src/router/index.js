@@ -7,6 +7,10 @@ import Moments from "@/views/Moments.vue";
 import Album from "@/views/Album.vue";
 import Profile from "@/views/Profile.vue";
 
+import EuropeHistory from "@/views/history/EuropeHistory.vue";
+import USAHistory from "@/views/history/USAHistory.vue";
+import RussiaHistory from "@/views/history/RussiaHistory.vue";
+
 import { isLogin } from "@/api/request";
 
 const router = createRouter({
@@ -37,6 +41,25 @@ const router = createRouter({
         {
           path: "/profile",
           component: Profile
+        },
+
+        // 历史分类页面
+        {
+          path: "/history/europe",
+          component: EuropeHistory
+        },
+        {
+          path: "/history/usa",
+          component: USAHistory
+        },
+        {
+          path: "/history/russia",
+          component: RussiaHistory
+        },
+        {
+          path: 'history/history-detail',
+          name: 'HistoryDetail',
+          component: () => import('@/views/history/HistoryDetail.vue')
         }
       ]
     }

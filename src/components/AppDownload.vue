@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import qrCodeImage from '@/assets/Images/apk-qrcode.png'
+import qrCodeImage from '@/assets/images/apk-qrcode.png'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 const visible = ref(false);

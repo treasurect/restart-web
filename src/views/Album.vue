@@ -3,6 +3,10 @@ import { ref, onMounted } from 'vue';
 import request from '@/api/request';
 import { BASE_URL } from '@/api/request';
 
+defineOptions({
+  name: "AlbumPage"
+});
+
 const albumList = ref([])
 const loading = ref(false)
 const errorMsg = ref("")

@@ -2,10 +2,13 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import Login from "@/views/Login.vue";
 import HomeLayout from "@/layout/HomeLayout.vue";
+
 import Home from "@/views/Home.vue";
 import Moments from "@/views/Moments.vue";
 import Album from "@/views/Album.vue";
 import Profile from "@/views/Profile.vue";
+import DataSource from "@/views/DataSource.vue";
+import AiChat from "@/views/AiChat.vue";
 
 import EuropeHistory from "@/views/history/EuropeHistory.vue";
 import USAHistory from "@/views/history/USAHistory.vue";
@@ -24,11 +27,19 @@ const router = createRouter({
     {
       path: "/",
       component: HomeLayout,
-      redirect: "/home",
+      redirect: "/ai-chat",
       children: [
         {
           path: "/home",
           component: Home
+        },
+        {
+          path: "/ai-chat",
+          component: AiChat
+        },
+        {
+          path: "/data-source",
+          component: DataSource
         },
         {
           path: "/moments",
@@ -73,7 +84,7 @@ router.beforeEach((to) => {
   }
 
   if (to.path === "/login" && isLogin()) {
-    return "/moments";
+    return "/ai-chat";
   }
 });
 

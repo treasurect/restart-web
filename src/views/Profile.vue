@@ -2,6 +2,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+defineOptions({
+  name: "ProfilePage"
+});
+
 const router = useRouter()
 
 const user = ref({

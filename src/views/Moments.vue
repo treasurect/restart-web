@@ -5,6 +5,10 @@ import { isLogin } from '@/api/request';
 import { useRouter } from 'vue-router';
 import MomentItem from '@/components/MomentItem.vue';
 
+defineOptions({
+  name: "MomentsPage"
+});
+
 const router = useRouter()
 const moments = ref([])
 const loading = ref(false)

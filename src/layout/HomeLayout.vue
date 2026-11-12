@@ -6,14 +6,26 @@ import AppDownload from "@/components/AppDownload.vue";
 const router = useRouter();
 const route = useRoute();
 
+const cachedViews = [
+  "HomePage",
+  "DataSourcePage",
+  "AiChatPage",
+  "MomentsPage",
+  "AlbumPage",
+  "ProfilePage"
+];
+
 const tabs = [
-  { name: "首页", path: "/home" },
+  // { name: "首页", path: "/home" },
+  { name: "知识库", path: "/data-source" },
+  { name: "AI助理", path: "/ai-chat" },
   { name: "圈子", path: "/moments" },
   { name: "册集", path: "/album" },
   { name: "我的", path: "/profile" }
 ];
 
 function logout() {
+  localStorage.clear();
   removeToken();
   router.push("/login");
 }
@@ -43,7 +55,11 @@ function logout() {
     </header>
 
     <main class="content">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <KeepAlive :include="cachedViews">
+          <component :is="Component" />
+        </KeepAlive>
+      </RouterView>
     </main>
   </div>
 </template>

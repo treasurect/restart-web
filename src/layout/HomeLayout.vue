@@ -7,7 +7,7 @@ const router = useRouter();
 const route = useRoute();
 
 const cachedViews = [
-  "HomePage",
+  // "HomePage",
   "DataSourcePage",
   "AiChatPage",
   "MomentsPage",
@@ -16,7 +16,7 @@ const cachedViews = [
 ];
 
 const tabs = [
-  // { name: "首页", path: "/home" },
+  
   { name: "知识库", path: "/data-source" },
   { name: "AI助理", path: "/ai-chat" },
   { name: "圈子", path: "/moments" },

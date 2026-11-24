@@ -9,6 +9,20 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://api.treasurect.site',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/downloads': {
+        target: 'https://api.treasurect.site',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

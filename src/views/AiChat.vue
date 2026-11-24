@@ -6,7 +6,8 @@ import {
   getMessageList,
   streamChat,
   updateConversationTitle,
-  uploadAIImages
+  uploadAIImages,
+  getLLMModels
 } from "@/api/ai";
 import { BASE_URL } from "@/api/request";
 
@@ -15,10 +16,18 @@ defineOptions({
 });
 
 const CURRENT_CONVERSATION_KEY = "ai_current_conversation_id";
+const DEFAULT_MODEL_ID = "deepseek-flash";
 
 const messages = ref([]);
 const conversations = ref([]);
 const currentConversationId = ref(null);
+
+const llmModels = ref([]);
+const selectedModelId = ref(DEFAULT_MODEL_ID);
+const llmModelsLoading = ref(false);
+const llmModelsError = ref("");
+const modelMenuOpen = ref(false);
+const modelSelectorRef = ref(null);
 
 const loading = ref(false);
 const thinking = ref(false);
@@ -35,6 +44,58 @@ const messageListRef = ref(null);
 const canSend = computed(() => {
   return !loading.value && (inputText.value.trim().length > 0 || attachments.value.length > 0);
 });
+
+async function loadLLMModels() {
+  if (llmModelsLoading.value) {
+    return;
+  }
+
+  llmModelsLoading.value = true;
+  llmModelsError.value = "";
+
+  try {
+    const result = await getLLMModels();
+    const list = Array.isArray(result) ? result : result?.data;
+
+    if (!Array.isArray(list)) {
+      throw new Error("模型列表格式不正确");
+    }
+
+    llmModels.value = list.filter((item) => item?.modelId);
+
+    if (!llmModels.value.some((item) => item.modelId === selectedModelId.value)) {
+      selectedModelId.value = llmModels.value[0]?.modelId || DEFAULT_MODEL_ID;
+    }
+  } catch (error) {
+    llmModels.value = [];
+    llmModelsError.value = error.message || "获取模型列表失败";
+  } finally {
+    llmModelsLoading.value = false;
+  }
+}
+
+function toggleModelMenu() {
+  if (llmModels.value.length === 0) {
+    loadLLMModels();
+  }
+
+  modelMenuOpen.value = !modelMenuOpen.value;
+}
+
+function selectModel(modelId) {
+  selectedModelId.value = modelId;
+  modelMenuOpen.value = false;
+}
+
+function handleModelMenuClickOutside(event) {
+  if (
+    modelMenuOpen.value &&
+    modelSelectorRef.value &&
+    !modelSelectorRef.value.contains(event.target)
+  ) {
+    modelMenuOpen.value = false;
+  }
+}
 
 let activeAbortController = null;
 let isFirstToken = true;
@@ -339,7 +400,7 @@ function handleStreamEvent(event) {
   }
 }
 
-async function startStream(message, imageUrls, signal) {
+async function startStream(message, imageUrls, signal, modelId) {
   isFirstToken = true;
   const assistantId = -Date.now() - 1;
   curAssistantId = assistantId;
@@ -359,6 +420,7 @@ async function startStream(message, imageUrls, signal) {
       conversationId: currentConversationId.value,
       message,
       imageUrls,
+      modelId,
       signal,
       onEvent: handleStreamEvent
     });
@@ -409,7 +471,7 @@ async function sendCurrentMessage() {
     };
     messages.value.push(userMessage);
     await scrollToBottom();
-    await startStream(content, imageUrls, activeAbortController.signal);
+    await startStream(content, imageUrls, activeAbortController.signal, selectedModelId.value);
   } catch (error) {
     if (error.name !== "AbortError") {
       messages.value.push({
@@ -467,6 +529,8 @@ watch(currentConversationId, () => {
 });
 
 onMounted(async () => {
+  document.addEventListener("click", handleModelMenuClickOutside);
+
   const savedConversationId = Number(localStorage.getItem(CURRENT_CONVERSATION_KEY) || 0);
 
   if (savedConversationId) {
@@ -478,6 +542,8 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  document.removeEventListener("click", handleModelMenuClickOutside);
+
   if (activeAbortController) {
     activeAbortController.abort();
   }
@@ -644,6 +710,47 @@ onBeforeUnmount(() => {
           >
             发送
           </button>
+        </div>
+
+        <div ref="modelSelectorRef" class="model-selector">
+          <button
+            class="model-trigger"
+            type="button"
+            title="选择模型"
+            @click.stop="toggleModelMenu"
+          >
+            <span>{{ selectedModelId }}</span>
+            <span class="model-arrow">▾</span>
+          </button>
+
+          <transition name="model-menu">
+            <div v-if="modelMenuOpen" class="model-menu">
+              <div v-if="llmModelsLoading" class="model-menu-state">
+                加载中...
+              </div>
+
+              <div v-else-if="llmModelsError" class="model-menu-state error">
+                {{ llmModelsError }}
+              </div>
+
+              <div v-else-if="llmModels.length === 0" class="model-menu-state">
+                暂无可用模型
+              </div>
+
+              <template v-else>
+                <button
+                  v-for="model in llmModels"
+                  :key="model.modelId"
+                  type="button"
+                  class="model-option"
+                  :class="{ active: model.modelId === selectedModelId }"
+                  @click.stop="selectModel(model.modelId)"
+                >
+                  {{ model.modelId }}
+                </button>
+              </template>
+            </div>
+          </transition>
         </div>
 
         <input
@@ -1012,6 +1119,94 @@ onBeforeUnmount(() => {
 .composer textarea:focus {
   background: #fff;
   border-color: #4776e6;
+}
+
+.model-selector {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.model-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 5px 10px;
+  color: #4776e6;
+  background: #f2f6ff;
+  border: 1px solid #e2ebfb;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.model-trigger:hover {
+  background: #eaf1ff;
+}
+
+.model-arrow {
+  font-size: 10px;
+}
+
+.model-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 20;
+  width: 180px;
+  max-height: 280px;
+  padding: 6px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e5e8ef;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(31 42 78 / 12%);
+}
+
+.model-menu-state {
+  padding: 12px;
+  color: #8a94a6;
+  font-size: 13px;
+  text-align: center;
+}
+
+.model-menu-state.error {
+  color: #e5484d;
+}
+
+.model-option {
+  display: block;
+  width: 100%;
+  padding: 9px 10px;
+  color: #333;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+}
+
+.model-option:hover {
+  background: #f0f3f8;
+}
+
+.model-option.active {
+  color: #4776e6;
+  background: #eef4ff;
+}
+
+.model-menu-enter-active,
+.model-menu-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.model-menu-enter-from,
+.model-menu-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
 }
 
 .send-button {

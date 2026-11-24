@@ -1,4 +1,8 @@
-import request, { BASE_URL, getToken } from "./request";
+import request, { API_BASE_URL, getToken } from "./request";
+
+export function getLLMModels() {
+  return request.get("api/llm/models");
+}
 
 export function getConversationList() {
   return request.get("api/ai/conversation/list");
@@ -23,7 +27,7 @@ export function deleteConversation(conversationId) {
 }
 
 function getStreamBaseUrl() {
-  return BASE_URL.replace(/\/$/, "");
+  return API_BASE_URL;
 }
 
 function getAuthHeaders(isFormData = false) {
@@ -80,12 +84,14 @@ export async function streamChat({
   conversationId,
   message,
   imageUrls = [],
+  modelId,
   signal,
   onEvent
 }) {
   const body = {
     conversationId,
     message,
+    modelId,
     ...(imageUrls.length ? { imageUrls } : {})
   };
 
